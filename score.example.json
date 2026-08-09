@@ -1,0 +1,9 @@
+{
+  "events": [
+    {"note": "C5", "beats": 1},
+    {"note": "D5", "beats": 1},
+    {"note": "E5", "beats": 1},
+    {"note": "rest", "beats": 0.5},
+    {"note": "G5", "beats": 2}
+  ]
+}
