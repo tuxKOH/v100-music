@@ -220,6 +220,18 @@ class DualV100Player:
                 for device in self.devices:
                     torch.cuda.synchronize(device)
 
+    def play_chord(self, sizes: tuple[int, int], seconds: float) -> None:
+        """Run one independently mapped matrix size on each GPU."""
+        matrices = [self.cache[sizes[0]][0], self.cache[sizes[1]][1]]
+        started = time.monotonic()
+        with torch.inference_mode():
+            while time.monotonic() - started < seconds:
+                for _ in range(self.repeats):
+                    for a, b, output in matrices:
+                        torch.mm(a, b, out=output)
+                for device in self.devices:
+                    torch.cuda.synchronize(device)
+
     def play(
         self,
         events: Sequence[Event],
@@ -227,19 +239,26 @@ class DualV100Player:
         tuning: dict,
         bpm: float,
         gap: float,
+        chord_semitones: int | None = None,
     ) -> None:
         beat_seconds = 60.0 / bpm
         mapped = []
         for index, event in enumerate(events, 1):
             if event.frequency_hz is None:
-                mapped.append((event, None, ""))
+                mapped.append((event, None, "", None))
             else:
                 size, suffix = tuned_size(event, index, anchors, tuning)
-                mapped.append((event, size, suffix))
-        self.prepare([size for _, size, _ in mapped if size is not None])
+                companion = None
+                if chord_semitones is not None:
+                    companion_frequency = event.frequency_hz * 2.0 ** (chord_semitones / 12.0)
+                    companion = size_for_frequency(companion_frequency, anchors)
+                mapped.append((event, size, suffix, companion))
+        sizes = [size for _, size, _, _ in mapped if size is not None]
+        sizes += [companion for _, _, _, companion in mapped if companion is not None]
+        self.prepare(sizes)
 
         print("\n开始播放，Ctrl-C 停止")
-        for index, (event, size, suffix) in enumerate(mapped, 1):
+        for index, (event, size, suffix, companion) in enumerate(mapped, 1):
             duration = event.seconds if event.seconds is not None else event.beats * beat_seconds
             sounding = max(0.0, duration - gap)
             if size is None:
@@ -249,10 +268,12 @@ class DualV100Player:
             assert event.frequency_hz is not None
             print(
                 f"[{index:02d}/{len(mapped):02d}] {event.label:10s} "
-                f"{event.frequency_hz:8.2f} Hz -> {size:4d}x{size}{suffix}"
+                f"{event.frequency_hz:8.2f} Hz -> GPU1 {size:4d}x{size}{suffix}"
             )
+            if companion is not None:
+                print(f"    chord {chord_semitones:+d}st -> GPU2 {companion:4d}x{companion}")
             if sounding > 0:
-                self.play_note(size, sounding)
+                self.play_chord((size, companion), sounding) if companion is not None else self.play_note(size, sounding)
             if gap > 0:
                 time.sleep(min(gap, duration))
 
@@ -271,6 +292,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--no-tuning", action="store_true", help="忽略所有微调")
     parser.add_argument("--bpm", type=float, default=150.0)
     parser.add_argument("--gap", type=float, default=0.06, help="音符间断音秒数，默认 0.06")
+    parser.add_argument("--chord-semitones", type=int, metavar="N",
+                        help="双卡和弦：GPU2 相对 GPU1 移调 N 个半音，例如 -7 为低五度")
     parser.add_argument("--transpose", type=int, default=0, help="乐谱移调半音数")
     parser.add_argument("--repeats", type=int, default=4, help="每轮同步前每卡 GEMM 数")
     parser.add_argument("--devices", default="0,1")
@@ -301,7 +324,12 @@ def main() -> None:
             print(f"  {event.label:10s} -> rest")
         else:
             size, suffix = tuned_size(event, index, anchors, tuning)
-            print(f"  {event.label:10s} {event.frequency_hz:8.2f} Hz -> {size}x{size}{suffix}")
+            if args.chord_semitones is None:
+                print(f"  {event.label:10s} {event.frequency_hz:8.2f} Hz -> {size}x{size}{suffix}")
+            else:
+                companion_frequency = event.frequency_hz * 2.0 ** (args.chord_semitones / 12.0)
+                companion = size_for_frequency(companion_frequency, anchors)
+                print(f"  {event.label:10s} {event.frequency_hz:8.2f} Hz -> GPU1 {size}x{size}; GPU2 {companion}x{companion} ({args.chord_semitones:+d}st)")
     if args.dry_run:
         return
     if not torch.cuda.is_available():
@@ -310,7 +338,7 @@ def main() -> None:
     devices = parse_devices(args.devices, torch.cuda.device_count())
     player = DualV100Player(devices, args.repeats, args.seed)
     try:
-        player.play(events, anchors, tuning, args.bpm, args.gap)
+        player.play(events, anchors, tuning, args.bpm, args.gap, args.chord_semitones)
     except KeyboardInterrupt:
         print("\n已停止。")
 

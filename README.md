@@ -51,6 +51,15 @@ python3 probe.py --fine-sweep --duration 1 --rest 0.5 --lineout-marker --manifes
 python3 player.py --score bad_apple.score.json
 ```
 
+双卡和弦示例（GPU1 播主音，GPU2 播低五度）：
+
+```bash
+python3 player.py --score bad_apple.score.json --chord-semitones -7 --dry-run
+python3 player.py --score bad_apple.score.json --chord-semitones -7
+```
+
+`--chord-semitones -7` 表示第二张卡比主音低 7 个半音；两张卡会分别使用自己的矩阵尺寸。先用 `--dry-run` 检查映射，再短时间实测。
+
 先只打印映射、不占用 GPU：
 
 ```bash
