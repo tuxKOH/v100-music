@@ -185,32 +185,30 @@ class DualV100Player:
         self.devices = devices
         self.repeats = repeats
         self.seed = seed
-        self.cache: dict[int, list[tuple[torch.Tensor, torch.Tensor, torch.Tensor]]] = {}
+        self.cache: dict[tuple[int, int], tuple[torch.Tensor, torch.Tensor, torch.Tensor]] = {}
 
-    def prepare(self, sizes: Sequence[int]) -> None:
-        for size in sorted(set(sizes)):
-            if size in self.cache:
-                continue
-            working_set = 3 * size * size * 4 / 2**20
-            print(f"准备 {size}x{size}：{working_set:.1f} MiB/card")
-            generator = torch.Generator(device="cpu").manual_seed(self.seed + size)
-            host_a = torch.randn((size, size), dtype=torch.float32, generator=generator)
-            host_b = torch.randn((size, size), dtype=torch.float32, generator=generator)
-            matrices = []
-            for device in self.devices:
+    def prepare(self, sizes_by_device: Sequence[Sequence[int]]) -> None:
+        for device_index, sizes in enumerate(sizes_by_device):
+            device = self.devices[device_index]
+            for size in sorted(set(sizes)):
+                key = (size, device_index)
+                if key in self.cache:
+                    continue
+                working_set = 3 * size * size * 4 / 2**20
+                print(f"准备 GPU{device_index + 1} {size}x{size}：{working_set:.1f} MiB")
+                generator = torch.Generator(device="cpu").manual_seed(self.seed + size)
+                host_a = torch.randn((size, size), dtype=torch.float32, generator=generator)
+                host_b = torch.randn((size, size), dtype=torch.float32, generator=generator)
                 a = host_a.to(device)
                 b = host_b.to(device)
                 output = torch.empty_like(a)
-                matrices.append((a, b, output))
-            self.cache[size] = matrices
-            with torch.inference_mode():
-                for a, b, output in matrices:
+                self.cache[key] = (a, b, output)
+                with torch.inference_mode():
                     torch.mm(a, b, out=output)
-                for device in self.devices:
-                    torch.cuda.synchronize(device)
+                torch.cuda.synchronize(device)
 
     def play_note(self, size: int, seconds: float) -> None:
-        matrices = self.cache[size]
+        matrices = [self.cache[(size, device_index)] for device_index in range(len(self.devices))]
         started = time.monotonic()
         with torch.inference_mode():
             while time.monotonic() - started < seconds:
@@ -222,7 +220,7 @@ class DualV100Player:
 
     def play_chord(self, sizes: tuple[int, int], seconds: float) -> None:
         """Run one independently mapped matrix size on each GPU."""
-        matrices = [self.cache[sizes[0]][0], self.cache[sizes[1]][1]]
+        matrices = [self.cache[(sizes[0], 0)], self.cache[(sizes[1], 1)]]
         started = time.monotonic()
         with torch.inference_mode():
             while time.monotonic() - started < seconds:
@@ -253,9 +251,13 @@ class DualV100Player:
                     companion_frequency = event.frequency_hz * 2.0 ** (chord_semitones / 12.0)
                     companion = size_for_frequency(companion_frequency, anchors)
                 mapped.append((event, size, suffix, companion))
-        sizes = [size for _, size, _, _ in mapped if size is not None]
-        sizes += [companion for _, _, _, companion in mapped if companion is not None]
-        self.prepare(sizes)
+        if chord_semitones is None:
+            primary = [size for _, size, _, _ in mapped if size is not None]
+            self.prepare([primary, primary])
+        else:
+            primary = [size for _, size, _, _ in mapped if size is not None]
+            companion_sizes = [companion for _, _, _, companion in mapped if companion is not None]
+            self.prepare([primary, companion_sizes])
 
         print("\n开始播放，Ctrl-C 停止")
         for index, (event, size, suffix, companion) in enumerate(mapped, 1):
@@ -273,7 +275,13 @@ class DualV100Player:
             if companion is not None:
                 print(f"    chord {chord_semitones:+d}st -> GPU2 {companion:4d}x{companion}")
             if sounding > 0:
-                self.play_chord((size, companion), sounding) if companion is not None else self.play_note(size, sounding)
+                try:
+                    if companion is not None:
+                        self.play_chord((size, companion), sounding)
+                    else:
+                        self.play_note(size, sounding)
+                except RuntimeError as exc:
+                    raise RuntimeError(f"事件 {index} ({event.label}) GPU 计算失败：{exc}") from exc
             if gap > 0:
                 time.sleep(min(gap, duration))
 
