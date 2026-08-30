@@ -37,6 +37,14 @@ V100 的 PyTorch/CUDA 版本取决于你的驱动，故不在 `requirements.txt`
 python3 probe.py --sweep --duration 6 --rest 3
 ```
 
+录音用逐步定位扫描（每个 8 的倍数一段）：
+
+```bash
+python3 probe.py --fine-sweep --duration 3 --rest 2 --manifest sweep.json
+```
+
+这会依次运行 `512, 520, 528, ... 2048`。`sweep.json` 记录每段实际起止时间，便于把手机录音切回对应矩阵尺寸；总时长约为 `193 × (duration + rest)`。
+
 播放默认 Bad Apple!! 示例：
 
 ```bash

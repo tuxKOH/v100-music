@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import json
 import time
 from collections.abc import Sequence
+from pathlib import Path
 
 import torch
 
@@ -62,7 +64,7 @@ def run_size(
     rest: float,
     repeats: int,
     seed: int,
-) -> None:
+) -> dict:
     working_set_mib = 3 * size * size * 4 / 2**20
     print(
         f"\n=== FP32 {size}x{size} | {working_set_mib:.1f} MiB/card | "
@@ -82,6 +84,7 @@ def run_size(
         countdown(rest, "静音/基线，请把手机放在两张卡中间")
         print(f"双卡 FP32 开始（持续 {duration:g} 秒）")
         started = time.monotonic()
+        wall_started = time.time()
         batches = 0
         while time.monotonic() - started < duration:
             for _ in range(repeats):
@@ -93,7 +96,10 @@ def run_size(
             batches += 1
 
     elapsed = time.monotonic() - started
+    wall_ended = time.time()
     print(f"负载结束：双卡各 {batches * repeats} GEMMs / {elapsed:.2f}s")
+    return {"size": size, "started_unix": wall_started, "ended_unix": wall_ended,
+            "duration_s": elapsed, "batches_per_gpu": batches * repeats}
 
 
 def parse_args() -> argparse.Namespace:
@@ -107,6 +113,12 @@ def parse_args() -> argparse.Namespace:
         default="fp32",
         help="保留旧命令兼容；当前只有 fp32",
     )
+    parser.add_argument("--fine-sweep", action="store_true",
+                        help="512 到 2048 间按 --step 逐个测试，适合录音定位")
+    parser.add_argument("--step", type=int, default=8,
+                        help="--fine-sweep 的矩阵步长，默认 8")
+    parser.add_argument("--manifest", type=Path,
+                        help="把每段实际开始/结束时间写入 JSON")
     parser.add_argument("--size", type=int, default=512, help="方阵边长，默认 512")
     parser.add_argument(
         "--sweep",
@@ -134,6 +146,8 @@ def main() -> None:
         raise SystemExit("--duration 必须大于 0，--rest 不能小于 0")
     if args.repeats <= 0:
         raise SystemExit("--repeats 必须大于 0")
+    if args.step <= 0 or args.step % 8 != 0:
+        raise SystemExit("--step 必须是正数且为 8 的倍数")
     if not torch.cuda.is_available():
         raise SystemExit("没有可用的 CUDA GPU；请在能看到 V100 的宿主机环境运行")
 
@@ -145,10 +159,16 @@ def main() -> None:
             f"VRAM {props.total_memory / 2**30:.1f} GiB"
         )
 
-    sizes = SWEEP_SIZES if args.sweep else (args.size,)
+    sizes = tuple(range(512, 2048 + 1, args.step)) if args.fine_sweep else (SWEEP_SIZES if args.sweep else (args.size,))
+    manifest = []
     try:
-        for size in sizes:
-            run_size(size, devices, args.duration, args.rest, args.repeats, args.seed)
+        for index, size in enumerate(sizes):
+            print(f"\n扫描段 {index + 1}/{len(sizes)}：{size}x{size}")
+            manifest.append(run_size(size, devices, args.duration, args.rest, args.repeats, args.seed))
+        if args.manifest:
+            args.manifest.write_text(json.dumps({"duration_s": args.duration, "rest_s": args.rest,
+                "step": args.step, "segments": manifest}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            print(f"定位清单已写入：{args.manifest}")
     except KeyboardInterrupt:
         print("\n已停止。")
 
