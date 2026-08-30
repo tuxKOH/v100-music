@@ -197,7 +197,10 @@ def main() -> None:
     try:
         for index, size in enumerate(sizes):
             print(f"\n扫描段 {index + 1}/{len(sizes)}：{size}x{size}")
-            manifest.append(run_size(size, devices, args.duration, args.rest, args.repeats, args.seed, marker_path))
+            # The Line Out cue is intentionally played only once at session start;
+            # repeating it every segment contaminates the recording spectrum.
+            manifest.append(run_size(size, devices, args.duration, args.rest, args.repeats, args.seed,
+                                     marker_path if index == 0 else None))
         if args.manifest:
             args.manifest.write_text(json.dumps({"duration_s": args.duration, "rest_s": args.rest,
                 "step": args.step, "segments": manifest}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

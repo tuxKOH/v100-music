@@ -19,6 +19,8 @@ def main():
     p.add_argument('-o','--output',type=Path,default=Path('sweep_relative_pitch.csv'))
     p.add_argument('--recording-offset',type=float,default=None,help='第一个定位音在录音中的秒数；默认自动搜索')
     p.add_argument('--top',type=int,default=5); p.add_argument('--fft-size',type=int,default=8192)
+    p.add_argument('--ignore-band', action='append', default=['9500:10500'],
+                   help='排除频带 lo:hi Hz，可重复；默认排除约 10 kHz 间隔音')
     a=p.parse_args(); rate,x=load(a.recording); rr,fan=load(a.fan_reference)
     if rate!=rr: p.error('录音与 fan.wav 采样率不同')
     j=json.loads(a.manifest.read_text()); seg=j['segments']; interval=float(j.get('duration_s',1)+j.get('rest_s',.5))
@@ -40,7 +42,12 @@ def main():
         if len(chunk)<a.fft_size//2: continue
         _,_,z=stft(chunk,fs=rate,nperseg=a.fft_size,noverlap=a.fft_size*3//4,boundary='zeros',padded=True)
         target=np.median(20*np.log10(abs(z)+1e-10),axis=1); relative=target-fan_db
-        band=(f>=100)&(f<=12000); vals=relative[band]; freqs=f[band]; local=np.convolve(vals,np.ones(9)/9,'same'); prom=vals-local
+        band=(f>=100)&(f<=12000)
+        for spec in a.ignore_band:
+            try: lo,hi=(float(v) for v in spec.split(':',1))
+            except ValueError: p.error('--ignore-band 格式应为 lo:hi，例如 9500:10500')
+            band &= ~((f>=lo)&(f<=hi))
+        vals=relative[band]; freqs=f[band]; local=np.convolve(vals,np.ones(9)/9,'same'); prom=vals-local
         peaks,_=find_peaks(prom,height=1.0,distance=max(2,int(30/(rate/a.fft_size))))
         chosen=peaks[np.argsort(prom[peaks])[-a.top:]][::-1] if len(peaks) else []
         for rank,k in enumerate(chosen,1): rows.append({'index':n,'size':item['size'],'rank':rank,'frequency_hz':round(float(freqs[k]),2),'relative_prominence_db':round(float(prom[k]),2),'segment_start_s':round(start,3)})
