@@ -5,7 +5,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
+import tempfile
 import time
+import wave
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -13,6 +16,31 @@ import torch
 
 
 SWEEP_SIZES = (512, 768, 1024, 1536, 2048)
+
+
+def make_marker() -> str:
+    rate, length = 44100, 0.16
+    t = torch.arange(int(rate * length), dtype=torch.float64)
+    samples = (0.45 * torch.sin(2 * torch.pi * 1760 * t / rate) *
+               torch.hann_window(len(t), dtype=torch.float64)).numpy()
+    path = tempfile.NamedTemporaryFile(prefix="v100_marker_", suffix=".wav", delete=False).name
+    pcm = (samples * 32767).astype("<i2")
+    with wave.open(path, "wb") as handle:
+        handle.setnchannels(1); handle.setsampwidth(2); handle.setframerate(rate)
+        handle.writeframes(pcm.tobytes())
+    return path
+
+
+def play_marker(path: str) -> float:
+    started = time.time()
+    for command in (("paplay", path), ("aplay", "-q", path)):
+        try:
+            subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return started
+        except FileNotFoundError:
+            continue
+    print("警告：找不到 paplay/aplay，未播放 Line Out 定位音")
+    return started
 
 
 def countdown(seconds: float, label: str) -> None:
@@ -64,6 +92,7 @@ def run_size(
     rest: float,
     repeats: int,
     seed: int,
+    marker_path: str | None = None,
 ) -> dict:
     working_set_mib = 3 * size * size * 4 / 2**20
     print(
@@ -81,6 +110,7 @@ def run_size(
         for device in devices:
             torch.cuda.synchronize(device)
 
+        marker_time = play_marker(marker_path) if marker_path else None
         countdown(rest, "静音/基线，请把手机放在两张卡中间")
         print(f"双卡 FP32 开始（持续 {duration:g} 秒）")
         started = time.monotonic()
@@ -98,7 +128,7 @@ def run_size(
     elapsed = time.monotonic() - started
     wall_ended = time.time()
     print(f"负载结束：双卡各 {batches * repeats} GEMMs / {elapsed:.2f}s")
-    return {"size": size, "started_unix": wall_started, "ended_unix": wall_ended,
+    return {"size": size, "marker_unix": marker_time, "started_unix": wall_started, "ended_unix": wall_ended,
             "duration_s": elapsed, "batches_per_gpu": batches * repeats}
 
 
@@ -119,6 +149,8 @@ def parse_args() -> argparse.Namespace:
                         help="--fine-sweep 的矩阵步长，默认 8")
     parser.add_argument("--manifest", type=Path,
                         help="把每段实际开始/结束时间写入 JSON")
+    parser.add_argument("--lineout-marker", action="store_true",
+                        help="每段开始前从电脑 Line Out 播放短定位音")
     parser.add_argument("--size", type=int, default=512, help="方阵边长，默认 512")
     parser.add_argument(
         "--sweep",
@@ -161,10 +193,11 @@ def main() -> None:
 
     sizes = tuple(range(512, 2048 + 1, args.step)) if args.fine_sweep else (SWEEP_SIZES if args.sweep else (args.size,))
     manifest = []
+    marker_path = make_marker() if args.lineout_marker else None
     try:
         for index, size in enumerate(sizes):
             print(f"\n扫描段 {index + 1}/{len(sizes)}：{size}x{size}")
-            manifest.append(run_size(size, devices, args.duration, args.rest, args.repeats, args.seed))
+            manifest.append(run_size(size, devices, args.duration, args.rest, args.repeats, args.seed, marker_path))
         if args.manifest:
             args.manifest.write_text(json.dumps({"duration_s": args.duration, "rest_s": args.rest,
                 "step": args.step, "segments": manifest}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
