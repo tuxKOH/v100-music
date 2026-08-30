@@ -96,6 +96,16 @@ python3 pitch_gui.py
 
 录音、降噪结果和机器专属的 `pitch_labels.json` 默认被 `.gitignore` 排除；请自行决定是否发布。
 
+### 纯计算啸叫候选分析
+
+录音无法证明声音来自某一颗电容；下面的工具只报告稳定、窄带的候选峰，不会修改音频：
+
+```bash
+python3 whine_pitch.py 512.wav 768.wav --top 12
+```
+
+它使用 STFT、中值谱、局部峰值和时间占用率。风扇的宽带风声通常得分较低，但风扇叶片的纯音也可能入选，因此仍需用手机调音器和不同负载录音人工确认。`denoise.py` 同样采用保守掩膜并保留窄带峰；没有能保证“只过滤风扇、零误杀啸叫”的通用模型。
+
 ## 文件说明
 
 | 文件 | 作用 |
@@ -106,6 +116,7 @@ python3 pitch_gui.py
 | `gpu_tuner_gui.py` | 手机目标音反向标注矩阵尺寸 |
 | `pitch_gui.py` | 录音与参考音比较标注 |
 | `denoise.py` | 多段手机录音的频谱降噪 |
+| `whine_pitch.py` | 纯计算提取稳定窄带音高候选 |
 | `bad_apple.score.json` | 默认演示谱 |
 | `tuning.json` | 当前机器的示例校准，换机器必须重做 |
 
