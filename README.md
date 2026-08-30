@@ -106,6 +106,14 @@ python3 whine_pitch.py 512.wav 768.wav --top 12
 
 它使用 STFT、中值谱、局部峰值和时间占用率。风扇的宽带风声通常得分较低，但风扇叶片的纯音也可能入选，因此仍需用手机调音器和不同负载录音人工确认。`denoise.py` 同样采用保守掩膜并保留窄带峰；没有能保证“只过滤风扇、零误杀啸叫”的通用模型。
 
+想单独试听这些稳定窄带峰：
+
+```bash
+python3 whine_pitch.py 512.wav 768.wav --top 12 --extract-dir extracted
+```
+
+输出的 `extracted/*_stable_whine.wav` 只保留候选峰的窄带邻域，原始 WAV 不会被覆盖。它是试听和人工判断用的实验结果，不是安全的自动风扇/啸叫分类器。
+
 ## 文件说明
 
 | 文件 | 作用 |
