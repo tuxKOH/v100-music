@@ -60,6 +60,14 @@ python3 player.py --score bad_apple.score.json --chord-semitones -7
 
 `--chord-semitones -7` 表示第二张卡比主音低 7 个半音；两张卡会分别使用自己的矩阵尺寸。先用 `--dry-run` 检查映射，再短时间实测。
 
+如果想让旋律连续不断，把 score 中音符之间的短休止并入前一个音符：
+
+```bash
+python3 player.py --score bad_apple.score.json --chord-semitones -7 --legato --gap 0
+```
+
+这会改变原谱的断奏节奏，适合试听共振曲线；不影响 score 文件本身。
+
 先只打印映射、不占用 GPU：
 
 ```bash

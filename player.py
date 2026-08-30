@@ -34,6 +34,25 @@ class Event:
     seconds: float | None = None
 
 
+def merge_rests(events: Sequence[Event]) -> list[Event]:
+    """Turn inter-note rests into sustain time for a legato audition."""
+    merged: list[Event] = []
+    for index, event in enumerate(events):
+        is_rest = event.frequency_hz is None
+        has_next_note = any(next_event.frequency_hz is not None for next_event in events[index + 1 :])
+        if is_rest and merged and merged[-1].frequency_hz is not None and has_next_note:
+            previous = merged[-1]
+            if previous.seconds is not None and event.seconds is not None:
+                merged[-1] = Event(previous.label, previous.frequency_hz, previous.beats,
+                                    previous.seconds + event.seconds)
+            else:
+                merged[-1] = Event(previous.label, previous.frequency_hz,
+                                    previous.beats + event.beats, previous.seconds)
+        else:
+            merged.append(event)
+    return merged
+
+
 def note_frequency(note: str, transpose: int = 0) -> float:
     match = NOTE_PATTERN.match(note.strip())
     if not match:
@@ -236,9 +255,12 @@ class DualV100Player:
         anchors: Sequence[Anchor],
         tuning: dict,
         bpm: float,
-        gap: float,
-        chord_semitones: int | None = None,
+    gap: float,
+    chord_semitones: int | None = None,
+    legato: bool = False,
     ) -> None:
+        if legato:
+            events = merge_rests(events)
         beat_seconds = 60.0 / bpm
         mapped = []
         for index, event in enumerate(events, 1):
@@ -302,6 +324,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--gap", type=float, default=0.06, help="音符间断音秒数，默认 0.06")
     parser.add_argument("--chord-semitones", type=int, metavar="N",
                         help="双卡和弦：GPU2 相对 GPU1 移调 N 个半音，例如 -7 为低五度")
+    parser.add_argument("--legato", action="store_true",
+                        help="把音符之间的休止并入前一个音符，连续运行不间断")
     parser.add_argument("--transpose", type=int, default=0, help="乐谱移调半音数")
     parser.add_argument("--repeats", type=int, default=4, help="每轮同步前每卡 GEMM 数")
     parser.add_argument("--devices", default="0,1")
@@ -322,6 +346,8 @@ def main() -> None:
         events = anchor_scale(anchors)
     else:
         events = chromatic_scale(args.transpose)
+    if args.legato:
+        events = merge_rests(events)
 
     print("标注锚点（低 -> 高）：")
     for anchor in anchors:
@@ -346,7 +372,7 @@ def main() -> None:
     devices = parse_devices(args.devices, torch.cuda.device_count())
     player = DualV100Player(devices, args.repeats, args.seed)
     try:
-        player.play(events, anchors, tuning, args.bpm, args.gap, args.chord_semitones)
+        player.play(events, anchors, tuning, args.bpm, args.gap, args.chord_semitones, args.legato)
     except KeyboardInterrupt:
         print("\n已停止。")
 
