@@ -114,6 +114,14 @@ python3 whine_pitch.py 512.wav 768.wav --top 12 --extract-dir extracted
 
 输出的 `extracted/*_stable_whine.wav` 只保留候选峰的窄带邻域，原始 WAV 不会被覆盖。它是试听和人工判断用的实验结果，不是安全的自动风扇/啸叫分类器。
 
+如果能单独录一段只有风扇的 `fan.wav`，优先使用参考降噪：
+
+```bash
+python3 fan_denoise.py fan.wav 512.wav 768.wav 1024.wav 1536.wav 2048.wav
+```
+
+它按 `fan.wav` 的频谱做保守谱减，并给尖锐窄带峰保留最低增益；`--strength 0.5` 更温和，`1.0` 更激进。风扇的稳定叶片音仍可能保留，结果必须试听确认。
+
 ## 文件说明
 
 | 文件 | 作用 |
@@ -125,6 +133,7 @@ python3 whine_pitch.py 512.wav 768.wav --top 12 --extract-dir extracted
 | `pitch_gui.py` | 录音与参考音比较标注 |
 | `denoise.py` | 多段手机录音的频谱降噪 |
 | `whine_pitch.py` | 纯计算提取稳定窄带音高候选 |
+| `fan_denoise.py` | 使用独立风扇参考录音的保守降噪 |
 | `bad_apple.score.json` | 默认演示谱 |
 | `tuning.json` | 当前机器的示例校准，换机器必须重做 |
 
