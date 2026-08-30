@@ -142,6 +142,7 @@ python3 fan_denoise.py fan.wav 512.wav 768.wav 1024.wav 1536.wav 2048.wav
 | `denoise.py` | 多段手机录音的频谱降噪 |
 | `whine_pitch.py` | 纯计算提取稳定窄带音高候选 |
 | `fan_denoise.py` | 使用独立风扇参考录音的保守降噪 |
+| `sweep_pitch.py` | 按时间清单扣除风扇谱并生成尺寸—音高候选表 |
 | `bad_apple.score.json` | 默认演示谱 |
 | `tuning.json` | 当前机器的示例校准，换机器必须重做 |
 
