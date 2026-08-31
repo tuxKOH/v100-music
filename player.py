@@ -86,7 +86,9 @@ def load_anchors(path: Path) -> list[Anchor]:
     return anchors
 
 
-def size_for_frequency(frequency_hz: float, anchors: Sequence[Anchor]) -> int:
+def size_for_frequency(frequency_hz: float, anchors: Sequence[Anchor], quantum: int = 8) -> int:
+    if quantum <= 0:
+        raise ValueError("尺寸量化步长必须大于 0")
     minimum = anchors[0].frequency_hz
     maximum = anchors[-1].frequency_hz
     if not minimum <= frequency_hz <= maximum:
@@ -96,8 +98,8 @@ def size_for_frequency(frequency_hz: float, anchors: Sequence[Anchor]) -> int:
     log_frequencies = np.log([item.frequency_hz for item in anchors])
     log_sizes = np.log([item.size for item in anchors])
     interpolated = float(np.interp(math.log(frequency_hz), log_frequencies, log_sizes))
-    size = int(round(math.exp(interpolated) / 8.0) * 8)
-    return max(8, size)
+    size = int(round(math.exp(interpolated) / quantum) * quantum)
+    return max(1, size)
 
 
 def load_tuning(path: Path | None) -> dict:
@@ -116,9 +118,10 @@ def tuned_size(
     event_index: int,
     anchors: Sequence[Anchor],
     tuning: dict,
+    quantum: int = 8,
 ) -> tuple[int, str]:
     assert event.frequency_hz is not None
-    base_size = size_for_frequency(event.frequency_hz, anchors)
+    base_size = size_for_frequency(event.frequency_hz, anchors, quantum)
     rules = {}
     note_rule = tuning.get("notes", {}).get(event.label, {})
     event_rule = tuning.get("events", {}).get(str(event_index), {})
@@ -134,7 +137,7 @@ def tuned_size(
     elif "semitones" in rules:
         semitones = float(rules["semitones"])
         compensated_frequency = event.frequency_hz * 2.0 ** (semitones / 12.0)
-        size = size_for_frequency(compensated_frequency, anchors)
+        size = size_for_frequency(compensated_frequency, anchors, quantum)
         details.append(f"{semitones:+g}st")
     else:
         size = base_size
@@ -144,7 +147,7 @@ def tuned_size(
         size += offset
         details.append(f"size{offset:+d}")
 
-    size = int(round(size / 8.0) * 8)
+    size = int(round(size / quantum) * quantum)
     minimum_size = min(anchor.size for anchor in anchors)
     maximum_size = max(anchor.size for anchor in anchors)
     if not minimum_size <= size <= maximum_size:
@@ -200,10 +203,11 @@ def parse_devices(value: str, count: int) -> list[torch.device]:
 
 
 class DualV100Player:
-    def __init__(self, devices: Sequence[torch.device], repeats: int, seed: int) -> None:
+    def __init__(self, devices: Sequence[torch.device], repeats: int, seed: int, size_quantum: int = 8) -> None:
         self.devices = devices
         self.repeats = repeats
         self.seed = seed
+        self.size_quantum = size_quantum
         self.cache: dict[tuple[int, int], tuple[torch.Tensor, torch.Tensor, torch.Tensor]] = {}
 
     def prepare(self, sizes_by_device: Sequence[Sequence[int]]) -> None:
@@ -267,11 +271,11 @@ class DualV100Player:
             if event.frequency_hz is None:
                 mapped.append((event, None, "", None))
             else:
-                size, suffix = tuned_size(event, index, anchors, tuning)
+                size, suffix = tuned_size(event, index, anchors, tuning, self.size_quantum)
                 companion = None
                 if chord_semitones is not None:
                     companion_frequency = event.frequency_hz * 2.0 ** (chord_semitones / 12.0)
-                    companion = size_for_frequency(companion_frequency, anchors)
+                    companion = size_for_frequency(companion_frequency, anchors, self.size_quantum)
                 mapped.append((event, size, suffix, companion))
         if chord_semitones is None:
             primary = [size for _, size, _, _ in mapped if size is not None]
@@ -328,6 +332,8 @@ def parse_args() -> argparse.Namespace:
                         help="把音符之间的休止并入前一个音符，连续运行不间断")
     parser.add_argument("--transpose", type=int, default=0, help="乐谱移调半音数")
     parser.add_argument("--repeats", type=int, default=4, help="每轮同步前每卡 GEMM 数")
+    parser.add_argument("--size-quantum", type=int, default=8,
+                        help="播放器尺寸量化步长，默认 8；设为 1 使用每个整数尺寸")
     parser.add_argument("--devices", default="0,1")
     parser.add_argument("--seed", type=int, default=100)
     parser.add_argument("--dry-run", action="store_true", help="只打印映射，不运行 GPU")
@@ -338,6 +344,8 @@ def main() -> None:
     args = parse_args()
     if args.bpm <= 0 or args.gap < 0 or args.repeats <= 0:
         raise SystemExit("--bpm/--repeats 必须大于 0，--gap 不能小于 0")
+    if args.size_quantum <= 0:
+        raise SystemExit("--size-quantum 必须大于 0")
     anchors = load_anchors(args.labels)
     tuning = load_tuning(None if args.no_tuning else args.tuning)
     if args.score:
@@ -357,12 +365,12 @@ def main() -> None:
         if event.frequency_hz is None:
             print(f"  {event.label:10s} -> rest")
         else:
-            size, suffix = tuned_size(event, index, anchors, tuning)
+            size, suffix = tuned_size(event, index, anchors, tuning, args.size_quantum)
             if args.chord_semitones is None:
                 print(f"  {event.label:10s} {event.frequency_hz:8.2f} Hz -> {size}x{size}{suffix}")
             else:
                 companion_frequency = event.frequency_hz * 2.0 ** (args.chord_semitones / 12.0)
-                companion = size_for_frequency(companion_frequency, anchors)
+                companion = size_for_frequency(companion_frequency, anchors, args.size_quantum)
                 print(f"  {event.label:10s} {event.frequency_hz:8.2f} Hz -> GPU1 {size}x{size}; GPU2 {companion}x{companion} ({args.chord_semitones:+d}st)")
     if args.dry_run:
         return
@@ -370,7 +378,7 @@ def main() -> None:
         raise SystemExit("没有可用 CUDA GPU；可先用 --dry-run 检查映射")
 
     devices = parse_devices(args.devices, torch.cuda.device_count())
-    player = DualV100Player(devices, args.repeats, args.seed)
+    player = DualV100Player(devices, args.repeats, args.seed, args.size_quantum)
     try:
         player.play(events, anchors, tuning, args.bpm, args.gap, args.chord_semitones, args.legato)
     except KeyboardInterrupt:

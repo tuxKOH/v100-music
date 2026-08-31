@@ -68,14 +68,18 @@ def parse_devices(value: str, count: int) -> list[torch.device]:
 
 
 def make_identical_matrices(
-    size: int,
+    size: int | tuple[int, int, int],
     devices: Sequence[torch.device],
     seed: int,
 ) -> list[tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
     # Generate once on the CPU so both cards receive bit-identical operands.
+    if isinstance(size, tuple):
+        rows, inner, columns = size
+    else:
+        rows = inner = columns = size
     generator = torch.Generator(device="cpu").manual_seed(seed)
-    host_a = torch.randn((size, size), dtype=torch.float32, generator=generator)
-    host_b = torch.randn((size, size), dtype=torch.float32, generator=generator)
+    host_a = torch.randn((rows, inner), dtype=torch.float32, generator=generator)
+    host_b = torch.randn((inner, columns), dtype=torch.float32, generator=generator)
     matrices = []
     for device in devices:
         a = host_a.to(device)
@@ -93,14 +97,17 @@ def run_size(
     repeats: int,
     seed: int,
     marker_path: str | None = None,
+    shape: tuple[int, int, int] | None = None,
 ) -> dict:
-    working_set_mib = 3 * size * size * 4 / 2**20
+    actual_shape = shape or (size, size, size)
+    rows, inner, columns = actual_shape
+    working_set_mib = (rows * inner + inner * columns + rows * columns) * 4 / 2**20
     print(
-        f"\n=== FP32 {size}x{size} | {working_set_mib:.1f} MiB/card | "
+        f"\n=== FP32 {rows}x{inner} @ {inner}x{columns} | {working_set_mib:.1f} MiB/card | "
         f"dual-GPU lockstep ==="
     )
     print("正在生成完全相同的矩阵并复制到两张卡……")
-    matrices = make_identical_matrices(size, devices, seed)
+    matrices = make_identical_matrices(actual_shape, devices, seed)
 
     with torch.inference_mode():
         # Alternate submissions so neither card receives a long queue first.
@@ -128,7 +135,7 @@ def run_size(
     elapsed = time.monotonic() - started
     wall_ended = time.time()
     print(f"负载结束：双卡各 {batches * repeats} GEMMs / {elapsed:.2f}s")
-    return {"size": size, "marker_unix": marker_time, "started_unix": wall_started, "ended_unix": wall_ended,
+    return {"size": size, "shape": list(actual_shape), "marker_unix": marker_time, "started_unix": wall_started, "ended_unix": wall_ended,
             "duration_s": elapsed, "batches_per_gpu": batches * repeats}
 
 
@@ -146,12 +153,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--fine-sweep", action="store_true",
                         help="512 到 2048 间按 --step 逐个测试，适合录音定位")
     parser.add_argument("--step", type=int, default=8,
-                        help="--fine-sweep 的矩阵步长，默认 8")
+                        help="--fine-sweep 的矩阵步长，默认 8；设为 1 可测试每个整数尺寸")
     parser.add_argument("--manifest", type=Path,
                         help="把每段实际开始/结束时间写入 JSON")
     parser.add_argument("--lineout-marker", action="store_true",
                         help="每段开始前从电脑 Line Out 播放短定位音")
     parser.add_argument("--size", type=int, default=512, help="方阵边长，默认 512")
+    parser.add_argument("--shape", type=str,
+                        help="实验性矩形 GEMM，格式 MxKxN，例如 1x64x64；与 --fine-sweep 二选一")
     parser.add_argument(
         "--sweep",
         action="store_true",
@@ -172,14 +181,14 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    if args.size <= 0 or args.size % 8 != 0:
-        raise SystemExit("--size 必须是正数且为 8 的倍数")
+    if args.size <= 0:
+        raise SystemExit("--size 必须是正数")
     if args.duration <= 0 or args.rest < 0:
         raise SystemExit("--duration 必须大于 0，--rest 不能小于 0")
     if args.repeats <= 0:
         raise SystemExit("--repeats 必须大于 0")
-    if args.step <= 0 or args.step % 8 != 0:
-        raise SystemExit("--step 必须是正数且为 8 的倍数")
+    if args.step <= 0:
+        raise SystemExit("--step 必须是正数")
     if not torch.cuda.is_available():
         raise SystemExit("没有可用的 CUDA GPU；请在能看到 V100 的宿主机环境运行")
 
@@ -191,6 +200,17 @@ def main() -> None:
             f"VRAM {props.total_memory / 2**30:.1f} GiB"
         )
 
+    shape = None
+    if args.shape:
+        if args.fine_sweep or args.sweep:
+            raise SystemExit("--shape 不能与 --fine-sweep/--sweep 同时使用")
+        try:
+            values = tuple(int(part) for part in args.shape.lower().replace('×', 'x').split('x'))
+        except ValueError as exc:
+            raise SystemExit("--shape 格式应为 MxKxN，例如 1x64x64") from exc
+        if len(values) != 3 or any(value <= 0 for value in values):
+            raise SystemExit("--shape 的 M、K、N 必须都是正整数")
+        shape = values
     sizes = tuple(range(512, 2048 + 1, args.step)) if args.fine_sweep else (SWEEP_SIZES if args.sweep else (args.size,))
     manifest = []
     marker_path = make_marker() if args.lineout_marker else None
@@ -200,7 +220,7 @@ def main() -> None:
             # The Line Out cue is intentionally played only once at session start;
             # repeating it every segment contaminates the recording spectrum.
             manifest.append(run_size(size, devices, args.duration, args.rest, args.repeats, args.seed,
-                                     marker_path if index == 0 else None))
+                                     marker_path if index == 0 else None, shape))
         if args.manifest:
             args.manifest.write_text(json.dumps({"duration_s": args.duration, "rest_s": args.rest,
                 "step": args.step, "segments": manifest}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

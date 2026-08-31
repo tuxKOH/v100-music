@@ -45,6 +45,14 @@ python3 probe.py --fine-sweep --duration 1 --rest 0.5 --lineout-marker --manifes
 
 这会依次运行 `512, 520, 528, ... 2048`。会在开场从电脑 Line Out 播放一次约 160 ms 的 1760 Hz 定位音；之后不重复播放，避免标记音污染每个 batch。`sweep.json` 记录定位音和负载的实际时间，便于把手机录音切回对应矩阵尺寸。若系统没有 `paplay`/`aplay`，程序会提示但仍继续扫描。总时长约为 `193 × (1 + 0.5)` 秒，即约 4 分 49 秒。
 
+如果要实验矩形 GEMM（例如 `1×64×64`，即 `(1×64) @ (64×64)`），可以单独运行：
+
+```bash
+python3 probe.py --shape 1x64x64 --duration 10 --rest 2
+```
+
+矩形形状不是方阵尺寸的等价替代：计算量、cuBLAS kernel 和功耗路径都会改变，声音可能更弱或完全不同。它目前只用于探索，播放器尚未把矩形形状自动映射成音符；请先实测并重新标注。
+
 播放默认 Bad Apple!! 示例：
 
 ```bash
