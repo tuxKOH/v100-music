@@ -24,6 +24,12 @@ def main():
     a=p.parse_args(); rate,x=load(a.recording); rr,fan=load(a.fan_reference)
     if rate!=rr: p.error('录音与 fan.wav 采样率不同')
     j=json.loads(a.manifest.read_text()); seg=j['segments']; interval=float(j.get('duration_s',1)+j.get('rest_s',.5))
+    first_manifest_start = float(seg[0]['started_unix'])
+    first_manifest_marker = seg[0].get('marker_unix')
+    if first_manifest_marker is not None:
+        manifest_offsets = [float(item['started_unix']) - float(first_manifest_marker) for item in seg]
+    else:
+        manifest_offsets = [float(item['started_unix']) - first_manifest_start + float(j.get('rest_s', .5)) for item in seg]
     f,_,zf=stft(fan,fs=rate,nperseg=a.fft_size,noverlap=a.fft_size*3//4,boundary='zeros',padded=True)
     fan_db=np.median(20*np.log10(abs(zf)+1e-10),axis=1)
     if a.recording_offset is None:
@@ -38,7 +44,9 @@ def main():
     else: offset=a.recording_offset
     rows=[]
     for n,item in enumerate(seg):
-        start=offset+float(j.get('rest_s',.5))+n*interval; chunk=x[int(start*rate):int((start+float(j.get('duration_s',1)))*rate)]
+        # Prefer real per-segment times from the manifest.  Matrix allocation
+        # and warm-up add a small, cumulative delay beyond duration+rest.
+        start=offset+manifest_offsets[n]; chunk=x[int(start*rate):int((start+float(item.get('duration_s', j.get('duration_s',1))))*rate)]
         if len(chunk)<a.fft_size//2: continue
         _,_,z=stft(chunk,fs=rate,nperseg=a.fft_size,noverlap=a.fft_size*3//4,boundary='zeros',padded=True)
         target=np.median(20*np.log10(abs(z)+1e-10),axis=1); relative=target-fan_db
