@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert a monophonic Standard MIDI file to player.py JSON without dependencies."""
+"""Convert Standard MIDI to one voice or two independent GPU voices."""
 
 from __future__ import annotations
 
@@ -268,6 +268,61 @@ def flatten_monophonic(
     return events
 
 
+def select_note(active: list[NoteSpan], strategy: str) -> NoteSpan | None:
+    if not active:
+        return None
+    if strategy == "lowest":
+        return min(active, key=lambda item: (item.note, -item.start_tick))
+    if strategy == "highest":
+        return max(active, key=lambda item: (item.note, item.start_tick))
+    return max(active, key=lambda item: (item.start_tick, item.note))
+
+
+def flatten_dual(
+    voices: list[list[NoteSpan]], division: int, tempos: list[tuple[int, int]],
+    transposes: list[int], strategies: list[str], start: float, end: float,
+) -> list[dict]:
+    """Flatten two tracks on the same absolute MIDI timebase, then crop once."""
+    boundaries = sorted({tick for notes in voices for note in notes
+                         for tick in (note.start_tick, note.end_tick)} | {0})
+    result = []
+    for begin_tick, end_tick in zip(boundaries, boundaries[1:]):
+        begin = max(start, ticks_to_seconds(begin_tick, division, tempos))
+        finish = min(end, ticks_to_seconds(end_tick, division, tempos))
+        if finish <= begin:
+            continue
+        frequencies, labels = [], []
+        for notes, transpose, strategy in zip(voices, transposes, strategies):
+            selected = select_note([note for note in notes
+                                    if note.start_tick <= begin_tick < note.end_tick], strategy)
+            if selected is None:
+                frequencies.append(None)
+                labels.append("rest")
+            else:
+                pitch = selected.note + transpose
+                frequencies.append(round(midi_frequency(pitch), 6))
+                labels.append(midi_note_name(pitch))
+        # Retain absolute endpoints instead of summing rounded note durations.
+        # This bounds total rounding error for a several-minute arrangement.
+        relative_end = round(finish - start, 6)
+        if result and result[-1]["frequencies_hz"] == frequencies:
+            result[-1]["end_s"] = relative_end
+        else:
+            result.append({"label": " / ".join(labels), "notes": labels,
+                           "frequencies_hz": frequencies,
+                           "start_s": round(begin - start, 6), "end_s": relative_end})
+    # Pad the requested common window when both tracks finish early.
+    relative_end = round(end - start, 6)
+    previous_end = result[-1]["end_s"] if result else 0.0
+    if relative_end > previous_end:
+        result.append({"label": "rest / rest", "notes": ["rest", "rest"],
+                       "frequencies_hz": [None, None],
+                       "start_s": previous_end, "end_s": relative_end})
+    for item in result:
+        item["seconds"] = round(item["end_s"] - item["start_s"], 6)
+    return [item for item in result if item["seconds"] > 0]
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="把单声道 MIDI 转成 V100 player.py 乐谱")
     parser.add_argument("midi", type=Path)
@@ -275,6 +330,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--track", default="auto", help="默认自动选择音符最多的轨道")
     parser.add_argument("--transpose", default="auto", help="auto 或整数半音数")
     parser.add_argument("--strategy", choices=["latest", "highest"], default="latest")
+    parser.add_argument("--accompaniment-track", type=int,
+                        help="生成双卡谱：--track 给第一张卡，本轨给第二张卡")
+    parser.add_argument("--accompaniment-transpose", type=int, default=0,
+                        help="伴奏轨移调半音；独立于主旋律")
+    parser.add_argument("--accompaniment-strategy", choices=["latest", "highest", "lowest"],
+                        default="lowest", help="伴奏和弦取音，默认保留最低音")
+    parser.add_argument("--start", type=float, default=0, help="双卡谱从 MIDI 的第几秒开始")
+    parser.add_argument("--end", type=float, help="双卡谱到 MIDI 的第几秒结束，默认完整曲目")
     return parser.parse_args()
 
 
@@ -285,6 +348,36 @@ def main() -> None:
     if not notes:
         raise SystemExit(f"轨道 {track_index} 没有完整 Note On/Off")
     transpose = auto_transpose(notes) if args.transpose == "auto" else int(args.transpose)
+    if args.accompaniment_track is not None:
+        accompaniment_index, accompaniment = choose_track(tracks, str(args.accompaniment_track))
+        if not accompaniment:
+            raise SystemExit("伴奏轨没有完整 Note On/Off")
+        tempos = tempo_map(tracks)
+        score_end = ticks_to_seconds(max(note.end_tick for note in notes + accompaniment), division, tempos)
+        end = score_end if args.end is None else args.end
+        if not math.isfinite(args.start) or not math.isfinite(end) or not 0 <= args.start < end <= score_end:
+            raise SystemExit(f"双卡谱截取范围需满足 0 <= start < end <= {score_end:.6f}")
+        events = flatten_dual([notes, accompaniment], division, tempos,
+                              [transpose, args.accompaniment_transpose],
+                              [args.strategy, args.accompaniment_strategy], args.start, end)
+        output = args.output or args.midi.with_suffix(".dual.score.json")
+        payload = {
+            "format": "gpu-dual-score-v1", "source_midi": str(args.midi),
+            "source_start_s": args.start, "source_end_s": end,
+            "voices": [{"role": "melody", "track": track_index,
+                        "transpose_semitones": transpose, "strategy": args.strategy},
+                       {"role": "accompaniment", "track": accompaniment_index,
+                        "transpose_semitones": args.accompaniment_transpose,
+                        "strategy": args.accompaniment_strategy}],
+            "events": events,
+        }
+        output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(f"双卡谱：旋律 track {track_index} ({transpose:+d}st)，"
+              f"伴奏 track {accompaniment_index} ({args.accompaniment_transpose:+d}st)")
+        print(f"保留 MIDI {args.start:.3f}–{end:.3f}s，共 {len(events)} 段 -> {output}")
+        return
+    if args.start or args.end is not None:
+        raise SystemExit("--start/--end 目前用于 --accompaniment-track 双卡谱")
     events = flatten_monophonic(
         notes,
         division,

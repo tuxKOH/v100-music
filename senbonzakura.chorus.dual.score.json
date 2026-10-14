@@ -1,0 +1,1467 @@
+{
+  "title": "千本桜 — 副歌双声部",
+  "source_page": "https://www.aregan.net/p/senbonzakura.html",
+  "source_credit": "Original: 黒うさP / WhiteFlame; MIDI arrangement: aregan",
+  "format": "gpu-dual-score-v1",
+  "source_midi": "senbonzakura.mid",
+  "source_start_s": 56.10384,
+  "source_end_s": 81.03888,
+  "voices": [
+    {
+      "role": "melody",
+      "track": 6,
+      "transpose_semitones": 24,
+      "strategy": "latest"
+    },
+    {
+      "role": "accompaniment",
+      "track": 5,
+      "transpose_semitones": 12,
+      "strategy": "highest"
+    }
+  ],
+  "events": [
+    {
+      "label": "F6 / C5",
+      "notes": [
+        "F6",
+        "C5"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        523.251131
+      ],
+      "start_s": 0.0,
+      "end_s": 0.097403,
+      "seconds": 0.097403
+    },
+    {
+      "label": "G6 / D5",
+      "notes": [
+        "G6",
+        "D5"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        587.329536
+      ],
+      "start_s": 0.097403,
+      "end_s": 0.681818,
+      "seconds": 0.584415
+    },
+    {
+      "label": "A6 / E5",
+      "notes": [
+        "A6",
+        "E5"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        659.255114
+      ],
+      "start_s": 0.681818,
+      "end_s": 1.266233,
+      "seconds": 0.584415
+    },
+    {
+      "label": "rest / rest",
+      "notes": [
+        "rest",
+        "rest"
+      ],
+      "frequencies_hz": [
+        null,
+        null
+      ],
+      "start_s": 1.266233,
+      "end_s": 1.461038,
+      "seconds": 0.194805
+    },
+    {
+      "label": "A6 / E5",
+      "notes": [
+        "A6",
+        "E5"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        659.255114
+      ],
+      "start_s": 1.461038,
+      "end_s": 1.655842,
+      "seconds": 0.194804
+    },
+    {
+      "label": "C7 / G5",
+      "notes": [
+        "C7",
+        "G5"
+      ],
+      "frequencies_hz": [
+        2093.004522,
+        783.990872
+      ],
+      "start_s": 1.655842,
+      "end_s": 1.850648,
+      "seconds": 0.194806
+    },
+    {
+      "label": "D7 / D5",
+      "notes": [
+        "D7",
+        "D5"
+      ],
+      "frequencies_hz": [
+        2349.318143,
+        587.329536
+      ],
+      "start_s": 1.850648,
+      "end_s": 2.045453,
+      "seconds": 0.194805
+    },
+    {
+      "label": "G6 / D5",
+      "notes": [
+        "G6",
+        "D5"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        587.329536
+      ],
+      "start_s": 2.045453,
+      "end_s": 2.240257,
+      "seconds": 0.194804
+    },
+    {
+      "label": "F6 / C5",
+      "notes": [
+        "F6",
+        "C5"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        523.251131
+      ],
+      "start_s": 2.240257,
+      "end_s": 2.435063,
+      "seconds": 0.194806
+    },
+    {
+      "label": "A6 / A4",
+      "notes": [
+        "A6",
+        "A4"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        440.0
+      ],
+      "start_s": 2.435063,
+      "end_s": 2.629868,
+      "seconds": 0.194805
+    },
+    {
+      "label": "rest / rest",
+      "notes": [
+        "rest",
+        "rest"
+      ],
+      "frequencies_hz": [
+        null,
+        null
+      ],
+      "start_s": 2.629868,
+      "end_s": 2.824672,
+      "seconds": 0.194804
+    },
+    {
+      "label": "D6 / A4",
+      "notes": [
+        "D6",
+        "A4"
+      ],
+      "frequencies_hz": [
+        1174.659072,
+        440.0
+      ],
+      "start_s": 2.824672,
+      "end_s": 3.019478,
+      "seconds": 0.194806
+    },
+    {
+      "label": "F6 / C5",
+      "notes": [
+        "F6",
+        "C5"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        523.251131
+      ],
+      "start_s": 3.019478,
+      "end_s": 3.214283,
+      "seconds": 0.194805
+    },
+    {
+      "label": "G6 / D5",
+      "notes": [
+        "G6",
+        "D5"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        587.329536
+      ],
+      "start_s": 3.214283,
+      "end_s": 3.798698,
+      "seconds": 0.584415
+    },
+    {
+      "label": "A6 / E5",
+      "notes": [
+        "A6",
+        "E5"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        659.255114
+      ],
+      "start_s": 3.798698,
+      "end_s": 4.383113,
+      "seconds": 0.584415
+    },
+    {
+      "label": "rest / rest",
+      "notes": [
+        "rest",
+        "rest"
+      ],
+      "frequencies_hz": [
+        null,
+        null
+      ],
+      "start_s": 4.383113,
+      "end_s": 4.577918,
+      "seconds": 0.194805
+    },
+    {
+      "label": "A6 / E5",
+      "notes": [
+        "A6",
+        "E5"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        659.255114
+      ],
+      "start_s": 4.577918,
+      "end_s": 4.772723,
+      "seconds": 0.194805
+    },
+    {
+      "label": "A#6 / F5",
+      "notes": [
+        "A#6",
+        "F5"
+      ],
+      "frequencies_hz": [
+        1864.655046,
+        698.456463
+      ],
+      "start_s": 4.772723,
+      "end_s": 4.967528,
+      "seconds": 0.194805
+    },
+    {
+      "label": "A6 / E5",
+      "notes": [
+        "A6",
+        "E5"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        659.255114
+      ],
+      "start_s": 4.967528,
+      "end_s": 5.162333,
+      "seconds": 0.194805
+    },
+    {
+      "label": "G6 / D5",
+      "notes": [
+        "G6",
+        "D5"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        587.329536
+      ],
+      "start_s": 5.162333,
+      "end_s": 5.357138,
+      "seconds": 0.194805
+    },
+    {
+      "label": "F6 / C5",
+      "notes": [
+        "F6",
+        "C5"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        523.251131
+      ],
+      "start_s": 5.357138,
+      "end_s": 5.746748,
+      "seconds": 0.38961
+    },
+    {
+      "label": "rest / rest",
+      "notes": [
+        "rest",
+        "rest"
+      ],
+      "frequencies_hz": [
+        null,
+        null
+      ],
+      "start_s": 5.746748,
+      "end_s": 5.941553,
+      "seconds": 0.194805
+    },
+    {
+      "label": "D6 / A4",
+      "notes": [
+        "D6",
+        "A4"
+      ],
+      "frequencies_hz": [
+        1174.659072,
+        440.0
+      ],
+      "start_s": 5.941553,
+      "end_s": 6.136358,
+      "seconds": 0.194805
+    },
+    {
+      "label": "F6 / C5",
+      "notes": [
+        "F6",
+        "C5"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        523.251131
+      ],
+      "start_s": 6.136358,
+      "end_s": 6.331163,
+      "seconds": 0.194805
+    },
+    {
+      "label": "G6 / D5",
+      "notes": [
+        "G6",
+        "D5"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        587.329536
+      ],
+      "start_s": 6.331163,
+      "end_s": 6.915578,
+      "seconds": 0.584415
+    },
+    {
+      "label": "A6 / E5",
+      "notes": [
+        "A6",
+        "E5"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        659.255114
+      ],
+      "start_s": 6.915578,
+      "end_s": 7.499993,
+      "seconds": 0.584415
+    },
+    {
+      "label": "rest / rest",
+      "notes": [
+        "rest",
+        "rest"
+      ],
+      "frequencies_hz": [
+        null,
+        null
+      ],
+      "start_s": 7.499993,
+      "end_s": 7.694797,
+      "seconds": 0.194804
+    },
+    {
+      "label": "A6 / E5",
+      "notes": [
+        "A6",
+        "E5"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        659.255114
+      ],
+      "start_s": 7.694797,
+      "end_s": 7.889603,
+      "seconds": 0.194806
+    },
+    {
+      "label": "C7 / G5",
+      "notes": [
+        "C7",
+        "G5"
+      ],
+      "frequencies_hz": [
+        2093.004522,
+        783.990872
+      ],
+      "start_s": 7.889603,
+      "end_s": 8.084408,
+      "seconds": 0.194805
+    },
+    {
+      "label": "D7 / D5",
+      "notes": [
+        "D7",
+        "D5"
+      ],
+      "frequencies_hz": [
+        2349.318143,
+        587.329536
+      ],
+      "start_s": 8.084408,
+      "end_s": 8.279213,
+      "seconds": 0.194805
+    },
+    {
+      "label": "G6 / D5",
+      "notes": [
+        "G6",
+        "D5"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        587.329536
+      ],
+      "start_s": 8.279213,
+      "end_s": 8.474017,
+      "seconds": 0.194804
+    },
+    {
+      "label": "F6 / C5",
+      "notes": [
+        "F6",
+        "C5"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        523.251131
+      ],
+      "start_s": 8.474017,
+      "end_s": 8.668822,
+      "seconds": 0.194805
+    },
+    {
+      "label": "A6 / A4",
+      "notes": [
+        "A6",
+        "A4"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        440.0
+      ],
+      "start_s": 8.668822,
+      "end_s": 8.863627,
+      "seconds": 0.194805
+    },
+    {
+      "label": "rest / rest",
+      "notes": [
+        "rest",
+        "rest"
+      ],
+      "frequencies_hz": [
+        null,
+        null
+      ],
+      "start_s": 8.863627,
+      "end_s": 9.058433,
+      "seconds": 0.194806
+    },
+    {
+      "label": "D6 / A4",
+      "notes": [
+        "D6",
+        "A4"
+      ],
+      "frequencies_hz": [
+        1174.659072,
+        440.0
+      ],
+      "start_s": 9.058433,
+      "end_s": 9.253238,
+      "seconds": 0.194805
+    },
+    {
+      "label": "F6 / C5",
+      "notes": [
+        "F6",
+        "C5"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        523.251131
+      ],
+      "start_s": 9.253238,
+      "end_s": 9.448043,
+      "seconds": 0.194805
+    },
+    {
+      "label": "A#6 / F5",
+      "notes": [
+        "A#6",
+        "F5"
+      ],
+      "frequencies_hz": [
+        1864.655046,
+        698.456463
+      ],
+      "start_s": 9.448043,
+      "end_s": 9.837652,
+      "seconds": 0.389609
+    },
+    {
+      "label": "A6 / E5",
+      "notes": [
+        "A6",
+        "E5"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        659.255114
+      ],
+      "start_s": 9.837652,
+      "end_s": 10.227263,
+      "seconds": 0.389611
+    },
+    {
+      "label": "G6 / F5",
+      "notes": [
+        "G6",
+        "F5"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        698.456463
+      ],
+      "start_s": 10.227263,
+      "end_s": 10.616873,
+      "seconds": 0.38961
+    },
+    {
+      "label": "F6 / C5",
+      "notes": [
+        "F6",
+        "C5"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        523.251131
+      ],
+      "start_s": 10.616873,
+      "end_s": 11.006482,
+      "seconds": 0.389609
+    },
+    {
+      "label": "G6 / D5",
+      "notes": [
+        "G6",
+        "D5"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        587.329536
+      ],
+      "start_s": 11.006482,
+      "end_s": 11.201287,
+      "seconds": 0.194805
+    },
+    {
+      "label": "A6 / E5",
+      "notes": [
+        "A6",
+        "E5"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        659.255114
+      ],
+      "start_s": 11.201287,
+      "end_s": 11.396093,
+      "seconds": 0.194806
+    },
+    {
+      "label": "D6 / A4",
+      "notes": [
+        "D6",
+        "A4"
+      ],
+      "frequencies_hz": [
+        1174.659072,
+        440.0
+      ],
+      "start_s": 11.396093,
+      "end_s": 11.590898,
+      "seconds": 0.194805
+    },
+    {
+      "label": "C6 / G4",
+      "notes": [
+        "C6",
+        "G4"
+      ],
+      "frequencies_hz": [
+        1046.502261,
+        391.995436
+      ],
+      "start_s": 11.590898,
+      "end_s": 11.785703,
+      "seconds": 0.194805
+    },
+    {
+      "label": "D6 / A4",
+      "notes": [
+        "D6",
+        "A4"
+      ],
+      "frequencies_hz": [
+        1174.659072,
+        440.0
+      ],
+      "start_s": 11.785703,
+      "end_s": 11.980508,
+      "seconds": 0.194805
+    },
+    {
+      "label": "rest / rest",
+      "notes": [
+        "rest",
+        "rest"
+      ],
+      "frequencies_hz": [
+        null,
+        null
+      ],
+      "start_s": 11.980508,
+      "end_s": 12.175312,
+      "seconds": 0.194804
+    },
+    {
+      "label": "D6 / D6",
+      "notes": [
+        "D6",
+        "D6"
+      ],
+      "frequencies_hz": [
+        1174.659072,
+        1174.659072
+      ],
+      "start_s": 12.175312,
+      "end_s": 12.370117,
+      "seconds": 0.194805
+    },
+    {
+      "label": "F6 / F6",
+      "notes": [
+        "F6",
+        "F6"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        1396.912926
+      ],
+      "start_s": 12.370117,
+      "end_s": 12.564923,
+      "seconds": 0.194806
+    },
+    {
+      "label": "G6 / G6",
+      "notes": [
+        "G6",
+        "G6"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        1567.981744
+      ],
+      "start_s": 12.564923,
+      "end_s": 13.149338,
+      "seconds": 0.584415
+    },
+    {
+      "label": "A6 / A6",
+      "notes": [
+        "A6",
+        "A6"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        1760.0
+      ],
+      "start_s": 13.149338,
+      "end_s": 13.733753,
+      "seconds": 0.584415
+    },
+    {
+      "label": "rest / rest",
+      "notes": [
+        "rest",
+        "rest"
+      ],
+      "frequencies_hz": [
+        null,
+        null
+      ],
+      "start_s": 13.733753,
+      "end_s": 13.928558,
+      "seconds": 0.194805
+    },
+    {
+      "label": "A6 / A6",
+      "notes": [
+        "A6",
+        "A6"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        1760.0
+      ],
+      "start_s": 13.928558,
+      "end_s": 14.123363,
+      "seconds": 0.194805
+    },
+    {
+      "label": "C7 / C7",
+      "notes": [
+        "C7",
+        "C7"
+      ],
+      "frequencies_hz": [
+        2093.004522,
+        2093.004522
+      ],
+      "start_s": 14.123363,
+      "end_s": 14.318168,
+      "seconds": 0.194805
+    },
+    {
+      "label": "D7 / D7",
+      "notes": [
+        "D7",
+        "D7"
+      ],
+      "frequencies_hz": [
+        2349.318143,
+        2349.318143
+      ],
+      "start_s": 14.318168,
+      "end_s": 14.512972,
+      "seconds": 0.194804
+    },
+    {
+      "label": "G6 / G6",
+      "notes": [
+        "G6",
+        "G6"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        1567.981744
+      ],
+      "start_s": 14.512972,
+      "end_s": 14.707777,
+      "seconds": 0.194805
+    },
+    {
+      "label": "F6 / F6",
+      "notes": [
+        "F6",
+        "F6"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        1396.912926
+      ],
+      "start_s": 14.707777,
+      "end_s": 14.902583,
+      "seconds": 0.194806
+    },
+    {
+      "label": "A6 / A6",
+      "notes": [
+        "A6",
+        "A6"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        1760.0
+      ],
+      "start_s": 14.902583,
+      "end_s": 15.292193,
+      "seconds": 0.38961
+    },
+    {
+      "label": "D6 / D6",
+      "notes": [
+        "D6",
+        "D6"
+      ],
+      "frequencies_hz": [
+        1174.659072,
+        1174.659072
+      ],
+      "start_s": 15.292193,
+      "end_s": 15.486998,
+      "seconds": 0.194805
+    },
+    {
+      "label": "F6 / F6",
+      "notes": [
+        "F6",
+        "F6"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        1396.912926
+      ],
+      "start_s": 15.486998,
+      "end_s": 15.681802,
+      "seconds": 0.194804
+    },
+    {
+      "label": "G6 / G6",
+      "notes": [
+        "G6",
+        "G6"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        1567.981744
+      ],
+      "start_s": 15.681802,
+      "end_s": 16.266218,
+      "seconds": 0.584416
+    },
+    {
+      "label": "A6 / A6",
+      "notes": [
+        "A6",
+        "A6"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        1760.0
+      ],
+      "start_s": 16.266218,
+      "end_s": 16.850632,
+      "seconds": 0.584414
+    },
+    {
+      "label": "rest / rest",
+      "notes": [
+        "rest",
+        "rest"
+      ],
+      "frequencies_hz": [
+        null,
+        null
+      ],
+      "start_s": 16.850632,
+      "end_s": 17.045437,
+      "seconds": 0.194805
+    },
+    {
+      "label": "A6 / A6",
+      "notes": [
+        "A6",
+        "A6"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        1760.0
+      ],
+      "start_s": 17.045437,
+      "end_s": 17.240243,
+      "seconds": 0.194806
+    },
+    {
+      "label": "A#6 / A#6",
+      "notes": [
+        "A#6",
+        "A#6"
+      ],
+      "frequencies_hz": [
+        1864.655046,
+        1864.655046
+      ],
+      "start_s": 17.240243,
+      "end_s": 17.435048,
+      "seconds": 0.194805
+    },
+    {
+      "label": "A6 / A6",
+      "notes": [
+        "A6",
+        "A6"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        1760.0
+      ],
+      "start_s": 17.435048,
+      "end_s": 17.629853,
+      "seconds": 0.194805
+    },
+    {
+      "label": "G6 / G6",
+      "notes": [
+        "G6",
+        "G6"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        1567.981744
+      ],
+      "start_s": 17.629853,
+      "end_s": 17.824658,
+      "seconds": 0.194805
+    },
+    {
+      "label": "F6 / F6",
+      "notes": [
+        "F6",
+        "F6"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        1396.912926
+      ],
+      "start_s": 17.824658,
+      "end_s": 18.214267,
+      "seconds": 0.389609
+    },
+    {
+      "label": "rest / rest",
+      "notes": [
+        "rest",
+        "rest"
+      ],
+      "frequencies_hz": [
+        null,
+        null
+      ],
+      "start_s": 18.214267,
+      "end_s": 18.409073,
+      "seconds": 0.194806
+    },
+    {
+      "label": "D6 / D6",
+      "notes": [
+        "D6",
+        "D6"
+      ],
+      "frequencies_hz": [
+        1174.659072,
+        1174.659072
+      ],
+      "start_s": 18.409073,
+      "end_s": 18.603878,
+      "seconds": 0.194805
+    },
+    {
+      "label": "F6 / F6",
+      "notes": [
+        "F6",
+        "F6"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        1396.912926
+      ],
+      "start_s": 18.603878,
+      "end_s": 18.798683,
+      "seconds": 0.194805
+    },
+    {
+      "label": "G6 / G6",
+      "notes": [
+        "G6",
+        "G6"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        1567.981744
+      ],
+      "start_s": 18.798683,
+      "end_s": 19.383097,
+      "seconds": 0.584414
+    },
+    {
+      "label": "A6 / A6",
+      "notes": [
+        "A6",
+        "A6"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        1760.0
+      ],
+      "start_s": 19.383097,
+      "end_s": 19.967513,
+      "seconds": 0.584416
+    },
+    {
+      "label": "rest / rest",
+      "notes": [
+        "rest",
+        "rest"
+      ],
+      "frequencies_hz": [
+        null,
+        null
+      ],
+      "start_s": 19.967513,
+      "end_s": 20.162318,
+      "seconds": 0.194805
+    },
+    {
+      "label": "A6 / A6",
+      "notes": [
+        "A6",
+        "A6"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        1760.0
+      ],
+      "start_s": 20.162318,
+      "end_s": 20.357122,
+      "seconds": 0.194804
+    },
+    {
+      "label": "C7 / C7",
+      "notes": [
+        "C7",
+        "C7"
+      ],
+      "frequencies_hz": [
+        2093.004522,
+        2093.004522
+      ],
+      "start_s": 20.357122,
+      "end_s": 20.551927,
+      "seconds": 0.194805
+    },
+    {
+      "label": "D7 / D7",
+      "notes": [
+        "D7",
+        "D7"
+      ],
+      "frequencies_hz": [
+        2349.318143,
+        2349.318143
+      ],
+      "start_s": 20.551927,
+      "end_s": 20.746733,
+      "seconds": 0.194806
+    },
+    {
+      "label": "G6 / G6",
+      "notes": [
+        "G6",
+        "G6"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        1567.981744
+      ],
+      "start_s": 20.746733,
+      "end_s": 20.941538,
+      "seconds": 0.194805
+    },
+    {
+      "label": "F6 / F6",
+      "notes": [
+        "F6",
+        "F6"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        1396.912926
+      ],
+      "start_s": 20.941538,
+      "end_s": 21.136343,
+      "seconds": 0.194805
+    },
+    {
+      "label": "A6 / A6",
+      "notes": [
+        "A6",
+        "A6"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        1760.0
+      ],
+      "start_s": 21.136343,
+      "end_s": 21.331148,
+      "seconds": 0.194805
+    },
+    {
+      "label": "rest / rest",
+      "notes": [
+        "rest",
+        "rest"
+      ],
+      "frequencies_hz": [
+        null,
+        null
+      ],
+      "start_s": 21.331148,
+      "end_s": 21.525952,
+      "seconds": 0.194804
+    },
+    {
+      "label": "D6 / D6",
+      "notes": [
+        "D6",
+        "D6"
+      ],
+      "frequencies_hz": [
+        1174.659072,
+        1174.659072
+      ],
+      "start_s": 21.525952,
+      "end_s": 21.720757,
+      "seconds": 0.194805
+    },
+    {
+      "label": "F6 / F6",
+      "notes": [
+        "F6",
+        "F6"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        1396.912926
+      ],
+      "start_s": 21.720757,
+      "end_s": 21.915563,
+      "seconds": 0.194806
+    },
+    {
+      "label": "A#6 / A#6",
+      "notes": [
+        "A#6",
+        "A#6"
+      ],
+      "frequencies_hz": [
+        1864.655046,
+        1864.655046
+      ],
+      "start_s": 21.915563,
+      "end_s": 22.305173,
+      "seconds": 0.38961
+    },
+    {
+      "label": "A6 / A6",
+      "notes": [
+        "A6",
+        "A6"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        1760.0
+      ],
+      "start_s": 22.305173,
+      "end_s": 22.694782,
+      "seconds": 0.389609
+    },
+    {
+      "label": "G6 / G6",
+      "notes": [
+        "G6",
+        "G6"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        1567.981744
+      ],
+      "start_s": 22.694782,
+      "end_s": 23.084392,
+      "seconds": 0.38961
+    },
+    {
+      "label": "F6 / F6",
+      "notes": [
+        "F6",
+        "F6"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        1396.912926
+      ],
+      "start_s": 23.084392,
+      "end_s": 23.474003,
+      "seconds": 0.389611
+    },
+    {
+      "label": "G6 / G6",
+      "notes": [
+        "G6",
+        "G6"
+      ],
+      "frequencies_hz": [
+        1567.981744,
+        1567.981744
+      ],
+      "start_s": 23.474003,
+      "end_s": 23.668808,
+      "seconds": 0.194805
+    },
+    {
+      "label": "F6 / F6",
+      "notes": [
+        "F6",
+        "F6"
+      ],
+      "frequencies_hz": [
+        1396.912926,
+        1396.912926
+      ],
+      "start_s": 23.668808,
+      "end_s": 23.863612,
+      "seconds": 0.194804
+    },
+    {
+      "label": "A6 / A6",
+      "notes": [
+        "A6",
+        "A6"
+      ],
+      "frequencies_hz": [
+        1760.0,
+        1760.0
+      ],
+      "start_s": 23.863612,
+      "end_s": 24.058417,
+      "seconds": 0.194805
+    },
+    {
+      "label": "C7 / C7",
+      "notes": [
+        "C7",
+        "C7"
+      ],
+      "frequencies_hz": [
+        2093.004522,
+        2093.004522
+      ],
+      "start_s": 24.058417,
+      "end_s": 24.253222,
+      "seconds": 0.194805
+    },
+    {
+      "label": "D7 / D7",
+      "notes": [
+        "D7",
+        "D7"
+      ],
+      "frequencies_hz": [
+        2349.318143,
+        2349.318143
+      ],
+      "start_s": 24.253222,
+      "end_s": 24.642833,
+      "seconds": 0.389611
+    },
+    {
+      "label": "rest / D7",
+      "notes": [
+        "rest",
+        "D7"
+      ],
+      "frequencies_hz": [
+        null,
+        2349.318143
+      ],
+      "start_s": 24.642833,
+      "end_s": 24.667183,
+      "seconds": 0.02435
+    },
+    {
+      "label": "rest / C7",
+      "notes": [
+        "rest",
+        "C7"
+      ],
+      "frequencies_hz": [
+        null,
+        2093.004522
+      ],
+      "start_s": 24.667183,
+      "end_s": 24.691534,
+      "seconds": 0.024351
+    },
+    {
+      "label": "rest / B6",
+      "notes": [
+        "rest",
+        "B6"
+      ],
+      "frequencies_hz": [
+        null,
+        1975.533205
+      ],
+      "start_s": 24.691534,
+      "end_s": 24.715884,
+      "seconds": 0.02435
+    },
+    {
+      "label": "rest / A6",
+      "notes": [
+        "rest",
+        "A6"
+      ],
+      "frequencies_hz": [
+        null,
+        1760.0
+      ],
+      "start_s": 24.715884,
+      "end_s": 24.740235,
+      "seconds": 0.024351
+    },
+    {
+      "label": "rest / G6",
+      "notes": [
+        "rest",
+        "G6"
+      ],
+      "frequencies_hz": [
+        null,
+        1567.981744
+      ],
+      "start_s": 24.740235,
+      "end_s": 24.764586,
+      "seconds": 0.024351
+    },
+    {
+      "label": "rest / F6",
+      "notes": [
+        "rest",
+        "F6"
+      ],
+      "frequencies_hz": [
+        null,
+        1396.912926
+      ],
+      "start_s": 24.764586,
+      "end_s": 24.788936,
+      "seconds": 0.02435
+    },
+    {
+      "label": "rest / E6",
+      "notes": [
+        "rest",
+        "E6"
+      ],
+      "frequencies_hz": [
+        null,
+        1318.510228
+      ],
+      "start_s": 24.788936,
+      "end_s": 24.813287,
+      "seconds": 0.024351
+    },
+    {
+      "label": "rest / D6",
+      "notes": [
+        "rest",
+        "D6"
+      ],
+      "frequencies_hz": [
+        null,
+        1174.659072
+      ],
+      "start_s": 24.813287,
+      "end_s": 24.837638,
+      "seconds": 0.024351
+    },
+    {
+      "label": "rest / C6",
+      "notes": [
+        "rest",
+        "C6"
+      ],
+      "frequencies_hz": [
+        null,
+        1046.502261
+      ],
+      "start_s": 24.837638,
+      "end_s": 24.861988,
+      "seconds": 0.02435
+    },
+    {
+      "label": "rest / B5",
+      "notes": [
+        "rest",
+        "B5"
+      ],
+      "frequencies_hz": [
+        null,
+        987.766603
+      ],
+      "start_s": 24.861988,
+      "end_s": 24.886339,
+      "seconds": 0.024351
+    },
+    {
+      "label": "rest / A5",
+      "notes": [
+        "rest",
+        "A5"
+      ],
+      "frequencies_hz": [
+        null,
+        880.0
+      ],
+      "start_s": 24.886339,
+      "end_s": 24.910689,
+      "seconds": 0.02435
+    },
+    {
+      "label": "rest / G5",
+      "notes": [
+        "rest",
+        "G5"
+      ],
+      "frequencies_hz": [
+        null,
+        783.990872
+      ],
+      "start_s": 24.910689,
+      "end_s": 24.93504,
+      "seconds": 0.024351
+    }
+  ]
+}
